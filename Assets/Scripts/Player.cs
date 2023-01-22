@@ -1,50 +1,78 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : BoardEntity
 {
-    // the player is both a player type and a solid type
     public override EntityType Types => EntityType.Player | EntityType.Solid;
 
-    private const float _moveDuration = .15f;
+    private const float _moveDuration = .12f;
     private bool _isMoving;
+
+    private static readonly Queue<Vector3Int> _bufferedInputs = new Queue<Vector3Int>();
+
+    private readonly Action<InputAction.CallbackContext> MoveLeft = (context) => Move(Vector3Int.left);
+    private readonly Action<InputAction.CallbackContext> MoveRight = (context) => Move(Vector3Int.right);
+    private readonly Action<InputAction.CallbackContext> MoveForward = (context) => Move(Vector3Int.forward);
+    private readonly Action<InputAction.CallbackContext> MoveBack = (context) => Move(Vector3Int.back);
+    private readonly Action<InputAction.CallbackContext> RegeneratePuzzle = (context) => Level.Instance.RegenerateBoard();
+
+    private static void Move(Vector3Int direction) => _bufferedInputs.Enqueue(direction);
+
+    private void Start()
+    {
+        InputHandler.Actions.Gameplay.MoveLeft.performed += MoveLeft;
+        InputHandler.Actions.Gameplay.MoveRight.performed += MoveRight;
+        InputHandler.Actions.Gameplay.MoveUp.performed += MoveForward;
+        InputHandler.Actions.Gameplay.MoveDown.performed += MoveBack;
+        InputHandler.Actions.Gameplay.RegeneratePuzzle.performed += RegeneratePuzzle;
+    }
+
+    private void OnDisable()
+    {
+        InputHandler.Actions.Gameplay.MoveLeft.performed -= MoveLeft;
+        InputHandler.Actions.Gameplay.MoveRight.performed -= MoveRight;
+        InputHandler.Actions.Gameplay.MoveUp.performed -= MoveForward;
+        InputHandler.Actions.Gameplay.MoveDown.performed -= MoveBack;
+        InputHandler.Actions.Gameplay.RegeneratePuzzle.performed -= RegeneratePuzzle;
+    }
 
     private void Update()
     {
-        // gather direction based on inputs from this frame
-        Vector3Int direction = GetDirectionIfInput();
+        HandleBufferedInputs();
+    }
 
-        // if the direction we got back is not zero, we should try to move
-        if (direction != Vector3Int.zero) 
+    private void HandleBufferedInputs()
+    {
+        if (_bufferedInputs.Count > 0)
         {
             if (!_isMoving)
             {
-                // calculate target position by adding direction to current position
+                Vector3Int direction = _bufferedInputs.Dequeue();
                 Vector3Int targetPosition = GridPosition + direction;
-
-                // we should check if the is any solid entity we can walk on 1 unit below our target position,
-                // otherwise we are trying to move to a space that would make the player float
-
-                // we also want to check if there is no solid entity at the target position, to prevent us from walking
-                // through walls
-                if (Level.Board.EntityPresentAt(targetPosition + Vector3Int.down, EntityType.Solid) ||
-                    Level.Board.EntityPresentAt(targetPosition, EntityType.Solid))
+                if (ValidPositionForPlayer(targetPosition))
                 {
-                    // finally we know we can move to the target position
-                    MoveToPosition(targetPosition, _moveDuration);
+                    MoveToPosition(targetPosition, _moveDuration / (_bufferedInputs.Count + 1));
                 }
             }
         }
     }
 
-    // simple move method
+    private bool ValidPositionForPlayer(Vector3Int targetPosition)
+    {
+        return Level.Board.EntityPresentAt(targetPosition + Vector3Int.down, EntityType.Solid) && 
+            !Level.Board.EntityPresentAt(targetPosition, EntityType.Solid);
+    }
+
     private void MoveToPosition(Vector3Int targetPosition, float moveDuration)
     {
         StartCoroutine(MoveToPositionCoroutine());
         IEnumerator MoveToPositionCoroutine()
         {
-            Level.Board.Remove(this); // we remove ourselves from the board at the start of moving
+            Level.Board.Remove(this);
             _isMoving = true;
             Vector3Int startPosition = GridPosition;
             float time = 0f;
@@ -55,31 +83,8 @@ public class Player : BoardEntity
                 yield return null;
             }
 
-            Level.Board.Add(this); // we add ourselves again when we stop moving, now with an updated position
+            Level.Board.Add(this);
             _isMoving = false;
         }
-    }
-
-    private Vector3Int GetDirectionIfInput()
-    {
-        // if any movement keys are pressed, return the corresponding direction
-        if (Input.GetKey(KeyCode.W))
-        {
-            return Vector3Int.forward;
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            return Vector3Int.left;
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            return Vector3Int.back;
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            return Vector3Int.right;
-        }
-
-        return Vector3Int.zero;
     }
 }

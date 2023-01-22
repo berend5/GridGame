@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Board
@@ -23,6 +24,25 @@ public class Board
 
             return count;
         }
+    }
+
+    public List<Vector3Int> AllEntityPositions => _entities.Keys.ToList();
+
+    private Vector3Int[] _directions = { Vector3Int.left, Vector3Int.right, Vector3Int.forward, Vector3Int.back };
+
+    public List<Vector3Int> AllFreePositionsNextTo(Vector3Int from)
+    {
+        List<Vector3Int> nextTo = new List<Vector3Int>();
+        for (int i = 0; i < _directions.Length; i++)
+        {
+            Vector3Int toCheck = from + _directions[i];
+            if (!_entities.ContainsKey(toCheck))
+            {
+                nextTo.Add(toCheck);
+            }
+        }
+
+        return nextTo;
     }
 
     // add an entity to the board
@@ -79,5 +99,18 @@ public class Board
     public void Remove(BoardEntity entity) 
     {
         _entities[entity.GridPosition].Remove(entity.Types);
+    }
+
+    public void Clear()
+    {
+        foreach (Dictionary<EntityType, BoardEntity> entities in _entities.Values)
+        {
+            foreach (BoardEntity entity in entities.Values)
+            {
+                entity.DestroyEntity();
+            }
+        }
+
+        _entities.Clear();
     }
 }
