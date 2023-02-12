@@ -18,7 +18,7 @@ public class Player : BoardEntity
     private readonly Action<InputAction.CallbackContext> MoveRight = (context) => Move(Vector3Int.right);
     private readonly Action<InputAction.CallbackContext> MoveForward = (context) => Move(Vector3Int.forward);
     private readonly Action<InputAction.CallbackContext> MoveBack = (context) => Move(Vector3Int.back);
-    private readonly Action<InputAction.CallbackContext> RegeneratePuzzle = (context) => Level.Instance.RegenerateBoard();
+    private readonly Action<InputAction.CallbackContext> RegeneratePuzzle = (context) => Level.Instance.RegenerateLevel();
 
     private static void Move(Vector3Int direction) => _bufferedInputs.Enqueue(direction);
 
@@ -72,7 +72,6 @@ public class Player : BoardEntity
         StartCoroutine(MoveToPositionCoroutine());
         IEnumerator MoveToPositionCoroutine()
         {
-            Level.Board.Remove(this);
             _isMoving = true;
             Vector3Int startPosition = GridPosition;
             float time = 0f;
@@ -83,7 +82,7 @@ public class Player : BoardEntity
                 yield return null;
             }
 
-            Level.Board.Add(this);
+            Level.Board.MoveEntity(this, startPosition, targetPosition);
             _isMoving = false;
         }
     }

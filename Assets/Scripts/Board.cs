@@ -30,7 +30,7 @@ public class Board
 
     private Vector3Int[] _directions = { Vector3Int.left, Vector3Int.right, Vector3Int.forward, Vector3Int.back };
 
-    public List<Vector3Int> AllFreePositionsNextTo(Vector3Int from)
+    public List<Vector3Int> AllEmptyPositionsNextTo(Vector3Int from)
     {
         List<Vector3Int> nextTo = new List<Vector3Int>();
         for (int i = 0; i < _directions.Length; i++)
@@ -45,10 +45,16 @@ public class Board
         return nextTo;
     }
 
-    // add an entity to the board
-    public void Add(BoardEntity entity)
+    public void MoveEntity(BoardEntity entity, Vector3Int from, Vector3Int to)
     {
-        Vector3Int position = entity.GridPosition;
+        Remove(entity, from);
+        Add(entity, to);
+    }
+
+    // add an entity to the board
+    public void Add(BoardEntity entity, Vector3Int forcePosition = default)
+    {
+        Vector3Int position = forcePosition == default ? entity.GridPosition : forcePosition;
         // if this position already contains a dictionary with entities,
         // we add the entity to the dictionary at this position
         if (_entities.TryGetValue(position, out var entitiesAtPosition))
@@ -96,9 +102,10 @@ public class Board
     }
 
     // remove any entity from the board
-    public void Remove(BoardEntity entity) 
+    public void Remove(BoardEntity entity, Vector3Int from = default) 
     {
-        _entities[entity.GridPosition].Remove(entity.Types);
+        Vector3Int position = from == default ? entity.GridPosition : from;
+        _entities[position].Remove(entity.Types);
     }
 
     public void Clear()
