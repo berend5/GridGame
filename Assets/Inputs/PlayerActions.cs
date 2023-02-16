@@ -71,6 +71,42 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveBlockLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa4a6c7f-aaac-43fa-baea-6e6fa38c03f4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveBlockRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""e574920f-7dac-460e-bc61-1639a40c939a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveBlockUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c91869d-01d4-4ba8-bc0c-739e267c7f09"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveBlockDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c1fe619-3d38-4803-8a64-fb9699ded6fe"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -172,6 +208,94 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
                     ""action"": ""RegeneratePuzzle"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d059c3cb-9b3c-4413-87f3-185e9be64d2e"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""33a33d37-2c00-4814-8370-c8776276df25"",
+                    ""path"": ""<Gamepad>/rightStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2bd7fb19-046c-42cf-b362-cd3a53a90370"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""18d69629-1c76-47f8-b96a-408aafbd4fbc"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1536c8c6-0f6d-40a2-8aa2-28d7073a19bb"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""84786bd8-357d-49bd-98bc-d8a9bca3f770"",
+                    ""path"": ""<Gamepad>/rightStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6f028c24-4488-497a-ba49-ff992eaa06c6"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1faa7594-6ad8-4416-867f-92213de6f56b"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveBlockDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -185,6 +309,10 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
         m_Gameplay_MoveUp = m_Gameplay.FindAction("MoveUp", throwIfNotFound: true);
         m_Gameplay_MoveDown = m_Gameplay.FindAction("MoveDown", throwIfNotFound: true);
         m_Gameplay_RegeneratePuzzle = m_Gameplay.FindAction("RegeneratePuzzle", throwIfNotFound: true);
+        m_Gameplay_MoveBlockLeft = m_Gameplay.FindAction("MoveBlockLeft", throwIfNotFound: true);
+        m_Gameplay_MoveBlockRight = m_Gameplay.FindAction("MoveBlockRight", throwIfNotFound: true);
+        m_Gameplay_MoveBlockUp = m_Gameplay.FindAction("MoveBlockUp", throwIfNotFound: true);
+        m_Gameplay_MoveBlockDown = m_Gameplay.FindAction("MoveBlockDown", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -249,6 +377,10 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_MoveUp;
     private readonly InputAction m_Gameplay_MoveDown;
     private readonly InputAction m_Gameplay_RegeneratePuzzle;
+    private readonly InputAction m_Gameplay_MoveBlockLeft;
+    private readonly InputAction m_Gameplay_MoveBlockRight;
+    private readonly InputAction m_Gameplay_MoveBlockUp;
+    private readonly InputAction m_Gameplay_MoveBlockDown;
     public struct GameplayActions
     {
         private @PlayerActions m_Wrapper;
@@ -258,6 +390,10 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
         public InputAction @MoveUp => m_Wrapper.m_Gameplay_MoveUp;
         public InputAction @MoveDown => m_Wrapper.m_Gameplay_MoveDown;
         public InputAction @RegeneratePuzzle => m_Wrapper.m_Gameplay_RegeneratePuzzle;
+        public InputAction @MoveBlockLeft => m_Wrapper.m_Gameplay_MoveBlockLeft;
+        public InputAction @MoveBlockRight => m_Wrapper.m_Gameplay_MoveBlockRight;
+        public InputAction @MoveBlockUp => m_Wrapper.m_Gameplay_MoveBlockUp;
+        public InputAction @MoveBlockDown => m_Wrapper.m_Gameplay_MoveBlockDown;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -282,6 +418,18 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
                 @RegeneratePuzzle.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRegeneratePuzzle;
                 @RegeneratePuzzle.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRegeneratePuzzle;
                 @RegeneratePuzzle.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnRegeneratePuzzle;
+                @MoveBlockLeft.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockLeft;
+                @MoveBlockLeft.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockLeft;
+                @MoveBlockLeft.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockLeft;
+                @MoveBlockRight.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockRight;
+                @MoveBlockRight.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockRight;
+                @MoveBlockRight.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockRight;
+                @MoveBlockUp.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockUp;
+                @MoveBlockUp.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockUp;
+                @MoveBlockUp.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockUp;
+                @MoveBlockDown.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockDown;
+                @MoveBlockDown.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockDown;
+                @MoveBlockDown.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMoveBlockDown;
             }
             m_Wrapper.m_GameplayActionsCallbackInterface = instance;
             if (instance != null)
@@ -301,6 +449,18 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
                 @RegeneratePuzzle.started += instance.OnRegeneratePuzzle;
                 @RegeneratePuzzle.performed += instance.OnRegeneratePuzzle;
                 @RegeneratePuzzle.canceled += instance.OnRegeneratePuzzle;
+                @MoveBlockLeft.started += instance.OnMoveBlockLeft;
+                @MoveBlockLeft.performed += instance.OnMoveBlockLeft;
+                @MoveBlockLeft.canceled += instance.OnMoveBlockLeft;
+                @MoveBlockRight.started += instance.OnMoveBlockRight;
+                @MoveBlockRight.performed += instance.OnMoveBlockRight;
+                @MoveBlockRight.canceled += instance.OnMoveBlockRight;
+                @MoveBlockUp.started += instance.OnMoveBlockUp;
+                @MoveBlockUp.performed += instance.OnMoveBlockUp;
+                @MoveBlockUp.canceled += instance.OnMoveBlockUp;
+                @MoveBlockDown.started += instance.OnMoveBlockDown;
+                @MoveBlockDown.performed += instance.OnMoveBlockDown;
+                @MoveBlockDown.canceled += instance.OnMoveBlockDown;
             }
         }
     }
@@ -312,5 +472,9 @@ public partial class @PlayerActions : IInputActionCollection2, IDisposable
         void OnMoveUp(InputAction.CallbackContext context);
         void OnMoveDown(InputAction.CallbackContext context);
         void OnRegeneratePuzzle(InputAction.CallbackContext context);
+        void OnMoveBlockLeft(InputAction.CallbackContext context);
+        void OnMoveBlockRight(InputAction.CallbackContext context);
+        void OnMoveBlockUp(InputAction.CallbackContext context);
+        void OnMoveBlockDown(InputAction.CallbackContext context);
     }
 }

@@ -26,8 +26,10 @@ public class Board
         }
     }
 
+    //All positions in the dictionary
     public List<Vector3Int> AllEntityPositions => _entities.Keys.ToList();
 
+    //List of directions in X and Y in - and + angles
     private Vector3Int[] _directions = { Vector3Int.left, Vector3Int.right, Vector3Int.forward, Vector3Int.back };
 
     public List<Vector3Int> AllEmptyPositionsNextTo(Vector3Int from)
@@ -51,7 +53,7 @@ public class Board
         Add(entity, to);
     }
 
-    // add an entity to the board
+    // Add an entity to the board
     public void Add(BoardEntity entity, Vector3Int forcePosition = default)
     {
         Vector3Int position = forcePosition == default ? entity.GridPosition : forcePosition;
@@ -96,7 +98,6 @@ public class Board
                 return true;
             }
         }
-        
 
         return false;
     }

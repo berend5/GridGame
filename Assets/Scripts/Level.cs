@@ -20,7 +20,17 @@ public class Level : MonoBehaviour
     {
         Instance = this;
         Board = new Board();
-        RegenerateLevel();
+        //EnableLevelGameObjects();
+        //RegenerateLevel();
+    }
+
+    //Zeer vieze functie groetjes Dion : )
+    public void EnableLevelGameObjects()
+    {
+        foreach (Transform levelEntityTransform in transform.GetComponentInChildren<Transform>())
+        {
+            levelEntityTransform.gameObject.SetActive(true);
+        }
     }
 
     public void RegenerateLevel()

@@ -12,11 +12,13 @@ public class BoardEntity : MonoBehaviour
 
     // the type of this entity, we can use the | operator to assign multiple types to the entity
     public virtual EntityType Types => EntityType.Solid;
+    public virtual bool isInteractable => false;
 
     // on start, we add this entity to the board
-    protected virtual void Awake()
-    {
+    protected virtual void Start()
+    { 
         Level.Board.Add(this);
+        Debug.Log("Added Entity");
     }
 
     public void DestroyEntity()
