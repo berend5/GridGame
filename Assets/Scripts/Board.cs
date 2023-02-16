@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 public class Board
 {
@@ -102,9 +103,9 @@ public class Board
     }
 
     // remove any entity from the board
-    public void Remove(BoardEntity entity, Vector3Int from = default) 
+    public void Remove(BoardEntity entity, Vector3Int? from = null) 
     {
-        Vector3Int position = from == default ? entity.GridPosition : from;
+        Vector3Int position = from == null ? entity.GridPosition : (Vector3Int) from;
         _entities[position].Remove(entity.Types);
     }
 

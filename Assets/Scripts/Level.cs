@@ -20,7 +20,7 @@ public class Level : MonoBehaviour
     {
         Instance = this;
         Board = new Board();
-        RegenerateLevel();
+        //RegenerateLevel();
     }
 
     public void RegenerateLevel()
@@ -91,7 +91,7 @@ public class Level : MonoBehaviour
     private void OnDrawGizmos()
     {
         Handles.color = Color.red;
-        Handles.DrawWireCube(transform.position, new Vector3(_maxLevelSize + 1f, _maxLevelSize + 1f, _maxLevelSize + 1f));
+        //Handles.DrawWireCube(transform.position, new Vector3(_maxLevelSize + 1f, _maxLevelSize + 1f, _maxLevelSize + 1f));
     }
 #endif
 }

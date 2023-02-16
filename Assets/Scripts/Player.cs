@@ -22,7 +22,7 @@ public class Player : BoardEntity
 
     private static void Move(Vector3Int direction) => _bufferedInputs.Enqueue(direction);
 
-    private void Start()
+    private void OnEnable()
     {
         InputHandler.Actions.Gameplay.MoveLeft.performed += MoveLeft;
         InputHandler.Actions.Gameplay.MoveRight.performed += MoveRight;
@@ -82,6 +82,7 @@ public class Player : BoardEntity
                 yield return null;
             }
 
+            print(startPosition);
             Level.Board.MoveEntity(this, startPosition, targetPosition);
             _isMoving = false;
         }

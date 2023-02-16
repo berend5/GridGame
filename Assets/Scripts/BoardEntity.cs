@@ -14,7 +14,7 @@ public class BoardEntity : MonoBehaviour
     public virtual EntityType Types => EntityType.Solid;
 
     // on start, we add this entity to the board
-    protected virtual void Awake()
+    protected virtual void Start()
     {
         Level.Board.Add(this);
     }
