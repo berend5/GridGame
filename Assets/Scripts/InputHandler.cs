@@ -2,18 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputHandler : MonoBehaviour
+namespace GridGame 
 {
-    public static PlayerActions Actions;
-
-    private void OnEnable()
+    public class InputHandler : MonoBehaviour
     {
-        Actions = new PlayerActions();
-        Actions.Enable();
+        public static PlayerActions Actions;
+
+        private void OnEnable()
+        {
+            Actions = new PlayerActions();
+            Actions.Enable();
+        }
+
+        private void OnDisable()
+        {
+            Actions.Disable();
+        }
     }
 
-    private void OnDisable()
-    {
-        Actions.Disable();
-    }
 }

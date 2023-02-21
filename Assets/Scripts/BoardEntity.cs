@@ -1,34 +1,116 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
-// the board entity class is the base class for any entity in the scene that exits on the board
-
-// all board entities know their current position and can be of multiple types at once
-public class BoardEntity : MonoBehaviour
+namespace GridGame
 {
-    // returns the rounded transform.position of this entity
-    public Vector3Int GridPosition => Vector3Int.RoundToInt(transform.position);
-
-    // the type of this entity, we can use the | operator to assign multiple types to the entity
-    public virtual EntityType Types => EntityType.Solid;
-
-    // on start, we add this entity to the board
-    protected virtual void Start()
+    public class BoardEntity : MonoBehaviour
     {
-        Level.Board.Add(this);
+        public Vector3Int GridPosition => Vector3Int.RoundToInt(transform.position);
+
+        public TypeMask TypeMask => TypeMask.Get(_flags);
+
+        [EnumMask]
+        [SerializeField]
+        private Flag _flags;
+
+        private void Start()
+        {
+            Level.Board.Add(this);
+        }
+
+        public void DestroyEntity()
+        {
+            Destroy(gameObject);
+        }
     }
 
-    public void DestroyEntity()
+    [Serializable]
+    public struct TypeMask
     {
-        Destroy(gameObject);
-    }
-}
+        public Flag Flags;
 
-// the types an entity can be
-public enum EntityType
-{
-    Solid,
-    Player,
-    Interactable
+        private TypeMask(Flag flags)
+        {
+            Flags = flags;
+        }
+
+        public static TypeMask Get(params Flag[] flags)
+        {
+            Flag f = 0;
+            foreach (var flag in flags)
+            {
+                f |= flag;
+            }
+
+            return new TypeMask(f);
+        }
+
+        // we consider 2 type masks equal if 1 of the bits is at the same position
+        public static bool operator ==(TypeMask a, TypeMask b)
+        {
+            return (a.Flags & b.Flags) != 0;
+        }
+
+        public static bool operator !=(TypeMask a, TypeMask b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is TypeMask other)
+            {
+                return (Flags & other.Flags) != 0;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Flags.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Flags.ToString();
+        }
+    }
+
+    [Flags]
+    public enum Flag : uint
+    {
+        Solid =             1 << 0,
+        Player =            1 << 1,
+        Interactable =      1 << 2
+    }
+
+    public class EnumMaskAttribute : Attribute
+    {
+
+    }
+
+    // 0x00000002
+    // 0x00000004
+    // 0x00000008
+    // 0x00000010
+    // 0x00000020
+    // 0x00000040
+    // 0x00000080
+    // 0x00000100
+    // 0x00000200
+    // 0x00000400
+    // 0x00000800
+    // 0x00001000
+    // 0x00002000
+    // 0x00004000
+
+    public interface IInteractable
+    {
+        // <summary> OnInteract should return wheter or not the interaction was allowed </summary>
+        public bool TryInteract(Vector3Int inputDirection);
+    }
 }

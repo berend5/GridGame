@@ -3,122 +3,168 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem.Interactions;
+using Unity.Collections;
+using Unity.Netcode;
+using static UnityEngine.EventSystems.EventTrigger;
 
-public class Board
+namespace GridGame
 {
-    // where we hold all references to the entities on the board
-    // the key is a Vector3Int so we can acces the entity by knowing its position
-    // the value is a dictionary with an entity type as a key and a reference to the actual entity in the scene
-    private readonly Dictionary<Vector3Int, Dictionary<EntityType, BoardEntity>> _entities = new Dictionary<Vector3Int, Dictionary<EntityType, BoardEntity>>();
-
-    // returns the total number of entities on the board
-    public int EntityCount
+    public class Board
     {
-        get
+        private readonly Dictionary<Vector3Int, List<BoardEntity>> _entities = new Dictionary<Vector3Int, List<BoardEntity>>();
+
+        public int EntityCount
         {
-            int count = 0;
-            foreach (Dictionary<EntityType, BoardEntity> boardEntities in _entities.Values) 
+            get
             {
-                count += boardEntities.Count;
-            }
+                int count = 0;
+                foreach (var boardEntities in _entities.Values)
+                {
+                    count += boardEntities.Count;
+                }
 
-            return count;
-        }
-    }
-
-    public List<Vector3Int> AllEntityPositions => _entities.Keys.ToList();
-
-    private Vector3Int[] _directions = { Vector3Int.left, Vector3Int.right, Vector3Int.forward, Vector3Int.back };
-
-    public List<Vector3Int> AllEmptyPositionsNextTo(Vector3Int from)
-    {
-        List<Vector3Int> nextTo = new List<Vector3Int>();
-        for (int i = 0; i < _directions.Length; i++)
-        {
-            Vector3Int toCheck = from + _directions[i];
-            if (!_entities.ContainsKey(toCheck))
-            {
-                nextTo.Add(toCheck);
+                return count;
             }
         }
 
-        return nextTo;
-    }
+        public List<Vector3Int> AllEntityPositions => _entities.Keys.ToList();
 
-    public void MoveEntity(BoardEntity entity, Vector3Int from, Vector3Int to)
-    {
-        Remove(entity, from);
-        Add(entity, to);
-    }
+        private readonly Vector3Int[] _directions = { Vector3Int.left, Vector3Int.right, Vector3Int.forward, Vector3Int.back };
 
-    // add an entity to the board
-    public void Add(BoardEntity entity, Vector3Int forcePosition = default)
-    {
-        Vector3Int position = forcePosition == default ? entity.GridPosition : forcePosition;
-        // if this position already contains a dictionary with entities,
-        // we add the entity to the dictionary at this position
-        if (_entities.TryGetValue(position, out var entitiesAtPosition))
+        public IEnumerator MoveToPositionVisualCoroutine(BoardEntity entity, EntityMove move)
         {
-            entitiesAtPosition.Add(entity.Types, entity);
-        }
-        else
-        {
-            // otherwise, we create a new dictionary at the entities position and add the entity to it
-            Dictionary<EntityType, BoardEntity> newEntitiesAtPosition = new Dictionary<EntityType, BoardEntity>();
-            _entities.Add(position, newEntitiesAtPosition);
-            newEntitiesAtPosition.Add(entity.Types, entity);
-        }
-    }
-
-    // returns true if an entity was found, returns false if no entity was found
-    public bool TryGetEntity(Vector3Int at, out BoardEntity entity, EntityType types)
-    {
-        entity = null;
-        if (_entities.TryGetValue(at, out var entitiesAtPosition))
-        {
-            if (entitiesAtPosition.TryGetValue(types, out entity))
+            float time = 0f;
+            while (time < move.Duration)
             {
-                return true;
+                entity.transform.position = Vector3.Lerp(move.StartPosition, move.TargetPosition, time / move.Duration);
+                time += Time.deltaTime;
+                yield return null;
             }
-        }
-        
-        return false;
-    }
 
-    // check if any entity of specified type is located at a position
-    public bool EntityPresentAt(Vector3Int at, EntityType types)
-    {
-        // check if the dictionary at position we are looking at contains the type we are looking for
-        if (_entities.TryGetValue(at, out var entitiesAtPosition))
+            entity.transform.position = move.TargetPosition;
+        }
+
+        public List<Vector3Int> AllEmptyPositionsNextTo(Vector3Int from)
         {
-            if (entitiesAtPosition.ContainsKey(types))
+            List<Vector3Int> nextTo = new List<Vector3Int>();
+            for (int i = 0; i < _directions.Length; i++)
             {
-                return true;
+                Vector3Int toCheck = from + _directions[i];
+                if (!_entities.ContainsKey(toCheck))
+                {
+                    nextTo.Add(toCheck);
+                }
             }
+
+            return nextTo;
         }
-        
 
-        return false;
-    }
-
-    // remove any entity from the board
-    public void Remove(BoardEntity entity, Vector3Int? from = null) 
-    {
-        Vector3Int position = from == null ? entity.GridPosition : (Vector3Int) from;
-        _entities[position].Remove(entity.Types);
-    }
-
-    public void Clear()
-    {
-        foreach (Dictionary<EntityType, BoardEntity> entities in _entities.Values)
+        public void MoveEntityData(BoardEntity entity, Vector3Int from, Vector3Int to)
         {
-            foreach (BoardEntity entity in entities.Values)
+            Remove(entity, from);
+            Add(entity, to);
+        }
+
+        public void Add(BoardEntity entity, Vector3Int forcePosition = default)
+        {
+            Vector3Int position = forcePosition == default ? entity.GridPosition : forcePosition;
+            if (_entities.TryGetValue(position, out var entitiesAtPosition))
             {
-                entity.DestroyEntity();
+                entitiesAtPosition.Add(entity);
+            }
+            else
+            {
+                var newEntitiesAtPosition = new List<BoardEntity>();
+                _entities.Add(position, newEntitiesAtPosition);
+                newEntitiesAtPosition.Add(entity);
             }
         }
 
-        _entities.Clear();
+        // <summary> not a very optimized method, loops through all entities at position </summary>
+        public bool TryGetEntity(Vector3Int at, out BoardEntity entity, TypeMask typeMask)
+        {
+            entity = null;
+            if (_entities.TryGetValue(at, out var entitiesAtPosition))
+            {
+                entity = GetEntityFromList(entitiesAtPosition, typeMask);
+                return entity == null ? false : true;
+            }
+
+            return false;
+        }
+
+        private BoardEntity GetEntityFromList(List<BoardEntity> entities, TypeMask typeMask)
+        {
+            foreach (var entity in entities)
+            {
+                if (entity.TypeMask == typeMask)
+                {
+                    return entity;
+                }
+            }
+
+            return null;
+        }
+
+        public bool IsEntityPresentAt(Vector3Int at, TypeMask typeMask = default)
+        {
+            if (_entities.TryGetValue(at, out var entitiesAtPosition))
+            {
+                if (typeMask == default)
+                {
+                    if (entitiesAtPosition.Count > 0)
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                BoardEntity entity = GetEntityFromList(entitiesAtPosition, typeMask);
+                return entity == null ? false : true;
+            }
+
+            return false;
+        }
+
+        public void Remove(BoardEntity entity, Vector3Int? from = null) // need to use nullable since default defaults to (0, 0, 0)
+        {
+            Vector3Int position = from == null ? entity.GridPosition : (Vector3Int) from;
+            _entities[position].Remove(entity);
+        }
+
+        public void Clear()
+        {
+            foreach (var entities in _entities.Values)
+            {
+                foreach (BoardEntity entity in entities)
+                {
+                    entity.DestroyEntity();
+                }
+            }
+
+            _entities.Clear();
+        }
+    }
+
+    public struct EntityMove : INetworkSerializable
+    {
+        public Vector3Int StartPosition;
+        public Vector3Int TargetPosition;
+        public float Duration;
+
+        public EntityMove(Vector3Int startPosition, Vector3Int targetPosition, float duration)
+        {
+            StartPosition = startPosition;
+            TargetPosition = targetPosition;
+            Duration = duration;
+        }
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref StartPosition);
+            serializer.SerializeValue(ref TargetPosition);
+            serializer.SerializeValue(ref Duration);
+        }
     }
 }
