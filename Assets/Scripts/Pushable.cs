@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace GridGame
 {
-    public class Pushable : MonoBehaviour, IInteractable
+    public class Pushable : NetworkBehaviour, IInteractable
     {
         private BoardEntity _entity;
         private bool _isInteracting;
@@ -14,43 +17,42 @@ namespace GridGame
             _entity = GetComponent<BoardEntity>();
         }
 
-        public bool TryInteract(Vector3Int inputDirection)
+        [ServerRpc(RequireOwnership = false)]
+        public void TryInteractServerRpc(Vector3Int inputDirection)
         {
             if (_isInteracting)
             {
-                return false;
+                return;
             }
 
             Vector3Int startPosition = _entity.GridPosition;
             Vector3Int targetPosition = startPosition + inputDirection;
-            
             if (Level.Board.TryGetEntity(targetPosition, out BoardEntity entity, TypeMask.Get(Flag.Interactable)))
             {   
                 IInteractable interactable = entity.GetComponent<IInteractable>();
-                bool interacted = interactable.TryInteract(inputDirection);
-                print(interacted);
-                if (!interacted)
-                {
-                    return false;
-                }
+                interactable.TryInteractServerRpc(inputDirection);
             }
 
             if (Level.Board.IsEntityPresentAt(targetPosition, TypeMask.Get(Flag.Solid)))
             {
-                return false;
+                return;
             }
 
-            StartCoroutine(MoveCoroutine());
-            return true;
+            float duration = PlayerController.MoveDuration;
+            EntityMove move = new EntityMove(startPosition, targetPosition, duration);
+            MoveClientRpc(move);
+        }
 
+        [ClientRpc]
+        private void MoveClientRpc(EntityMove move)
+        {
+            Level.Board.MoveEntityData(_entity, move.StartPosition, move.TargetPosition);
+            StartCoroutine(MoveCoroutine());
             IEnumerator MoveCoroutine()
             {
                 _isInteracting = true;
-                float duration = PlayerController.MoveDuration;
-                EntityMove move = new EntityMove(startPosition, targetPosition, duration);
                 StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(_entity, move));
-                Level.Board.MoveEntityData(_entity, move.StartPosition, move.TargetPosition);
-                yield return new WaitForSeconds(duration);
+                yield return new WaitForSeconds(move.Duration);
                 _isInteracting = false;
             }
         }

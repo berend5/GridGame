@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace GridGame
 {
@@ -22,13 +20,14 @@ namespace GridGame
         private Action<InputAction.CallbackContext> MoveRight;
         private Action<InputAction.CallbackContext> MoveForward;
         private Action<InputAction.CallbackContext> MoveBack;
-        //private Action<InputAction.CallbackContext> RegeneratePuzzle = (context) => Level.Instance.RegenerateLevel();
 
         private void Move(Vector3Int direction) => _bufferedInputs.Enqueue(direction);
 
-        public override void OnNetworkSpawn()
+        private IEnumerator Start()
         {
             _entity = GetComponent<BoardEntity>();
+            yield return new WaitForSeconds(.2f); // isowner is sometimes not initialized so we wait a bit...
+            
             if (IsOwner)
             {
                 MoveLeft = (context) => Move(Vector3Int.left);
@@ -40,11 +39,10 @@ namespace GridGame
                 InputHandler.Actions.Gameplay.MoveRight.performed += MoveRight;
                 InputHandler.Actions.Gameplay.MoveUp.performed += MoveForward;
                 InputHandler.Actions.Gameplay.MoveDown.performed += MoveBack;
-                //InputHandler.Actions.Gameplay.RegeneratePuzzle.performed += RegeneratePuzzle;
             }
         }
 
-        public override void OnNetworkDespawn()
+        private void OnDisable()
         {
             if (IsOwner)
             {
@@ -52,7 +50,6 @@ namespace GridGame
                 InputHandler.Actions.Gameplay.MoveRight.performed -= MoveRight;
                 InputHandler.Actions.Gameplay.MoveUp.performed -= MoveForward;
                 InputHandler.Actions.Gameplay.MoveDown.performed -= MoveBack;
-                //InputHandler.Actions.Gameplay.RegeneratePuzzle.performed -= RegeneratePuzzle;
             }
         }
 
@@ -85,8 +82,7 @@ namespace GridGame
         {
             if (Level.Board.TryGetEntity(targetPosition, out BoardEntity entity, TypeMask.Get(Flag.Interactable)))
             {
-                IInteractable interactable = entity.GetComponent<IInteractable>();
-                interactable.TryInteract(inputDirection);
+                entity.GetComponent<IInteractable>().TryInteractServerRpc(inputDirection);
             }
 
             return Level.Board.IsEntityPresentAt(targetPosition + Vector3Int.down, TypeMask.Get(Flag.Solid)) &&

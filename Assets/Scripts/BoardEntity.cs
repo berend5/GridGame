@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -110,7 +111,6 @@ namespace GridGame
 
     public interface IInteractable
     {
-        // <summary> OnInteract should return wheter or not the interaction was allowed </summary>
-        public bool TryInteract(Vector3Int inputDirection);
+        public void TryInteractServerRpc(Vector3Int inputDirection);
     }
 }
