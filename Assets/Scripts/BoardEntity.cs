@@ -1,8 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEditor;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace GridGame
@@ -10,16 +9,23 @@ namespace GridGame
     public class BoardEntity : MonoBehaviour
     {
         public Vector3Int GridPosition => Vector3Int.RoundToInt(transform.position);
-
         public TypeMask TypeMask => TypeMask.Get(_flags);
+        public int LocalId => _id;
+        private int _id;
 
         [EnumMask]
         [SerializeField]
         private Flag _flags;
 
-        private void Start()
+        private void OnEnable()
         {
+            _id = GetInstanceID();
             Level.Board.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            Level.Board.Remove(this);
         }
 
         public void DestroyEntity()

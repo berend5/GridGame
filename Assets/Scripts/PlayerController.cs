@@ -70,7 +70,7 @@ namespace GridGame
                     if (ValidPositionForPlayer(targetPosition, direction))
                     {
                         float duration = MoveDuration / (_bufferedInputs.Count + 1);
-                        EntityMove move = new EntityMove(startPosition, targetPosition, duration);
+                        EntityMove move = new EntityMove(startPosition, targetPosition, duration, _entity.LocalId);
                         MoveToPositionServerRpc(move);
                         _lockMovement = true;
                     }
@@ -98,13 +98,13 @@ namespace GridGame
         [ClientRpc]
         private void MoveToPositionClientRpc(EntityMove move)
         {
-            StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(_entity, move));
+            StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(move));
             StartCoroutine(WaitCoroutine());
             IEnumerator WaitCoroutine()
             {
                 yield return new WaitForSeconds(move.Duration);
                 _lockMovement = false;
-                Level.Board.MoveEntityData(_entity, move.StartPosition, move.TargetPosition);
+                Level.Board.MoveEntityData(move);
             }
         }
     }

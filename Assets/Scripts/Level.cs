@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.Netcode;
-using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,7 +9,9 @@ namespace GridGame
     public class Level : MonoBehaviour
     {
         public static Level Instance { get; private set; }
-        public static Board Board { get; private set; }
+        public static Board Board => _board;
+        
+        private static readonly Board _board = new Board();
 
         [SerializeField] 
         private Material _material1, _material2;
@@ -31,7 +31,6 @@ namespace GridGame
         private void Awake()
         {
             Instance = this;
-            Board = new Board();
             //RegenerateLevel();
         }
 

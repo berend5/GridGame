@@ -39,19 +39,19 @@ namespace GridGame
             }
 
             float duration = PlayerController.MoveDuration;
-            EntityMove move = new EntityMove(startPosition, targetPosition, duration);
+            EntityMove move = new EntityMove(startPosition, targetPosition, duration, _entity.LocalId);
             MoveClientRpc(move);
         }
 
         [ClientRpc]
         private void MoveClientRpc(EntityMove move)
         {
-            Level.Board.MoveEntityData(_entity, move.StartPosition, move.TargetPosition);
+            Level.Board.MoveEntityData(move);
             StartCoroutine(MoveCoroutine());
             IEnumerator MoveCoroutine()
             {
                 _isInteracting = true;
-                StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(_entity, move));
+                StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(move));
                 yield return new WaitForSeconds(move.Duration);
                 _isInteracting = false;
             }
