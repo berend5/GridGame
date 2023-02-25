@@ -10,8 +10,6 @@ namespace GridGame
     {
         public Vector3Int GridPosition => Vector3Int.RoundToInt(transform.position);
         public TypeMask TypeMask => TypeMask.Get(_flags);
-        public int LocalId => _id;
-        private int _id;
 
         [EnumMask]
         [SerializeField]
@@ -19,13 +17,12 @@ namespace GridGame
 
         private void OnEnable()
         {
-            _id = GetInstanceID();
-            Level.Board.Add(this);
+            Level.Board.Add(this, GridPosition);
         }
 
         private void OnDisable()
         {
-            Level.Board.Remove(this);
+            Level.Board.Remove(this, GridPosition);
         }
 
         public void DestroyEntity()
@@ -115,8 +112,8 @@ namespace GridGame
     // 0x00002000
     // 0x00004000
 
-    public interface IInteractable
+    public interface IPushable
     {
-        public void TryInteractServerRpc(Vector3Int inputDirection);
+        public void TryInteractServerRpc(Vector3Int pushDirection);
     }
 }

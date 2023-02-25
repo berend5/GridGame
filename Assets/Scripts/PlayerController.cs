@@ -70,7 +70,7 @@ namespace GridGame
                     if (ValidPositionForPlayer(targetPosition, direction))
                     {
                         float duration = MoveDuration / (_bufferedInputs.Count + 1);
-                        EntityMove move = new EntityMove(startPosition, targetPosition, duration, _entity.LocalId);
+                        MoveData move = new MoveData(startPosition, targetPosition, duration);
                         MoveToPositionServerRpc(move);
                         _lockMovement = true;
                     }
@@ -82,7 +82,7 @@ namespace GridGame
         {
             if (Level.Board.TryGetEntity(targetPosition, out BoardEntity entity, TypeMask.Get(Flag.Interactable)))
             {
-                entity.GetComponent<IInteractable>().TryInteractServerRpc(inputDirection);
+                entity.GetComponent<IPushable>().TryInteractServerRpc(inputDirection);
             }
 
             return Level.Board.IsEntityPresentAt(targetPosition + Vector3Int.down, TypeMask.Get(Flag.Solid)) &&
@@ -90,21 +90,21 @@ namespace GridGame
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void MoveToPositionServerRpc(EntityMove move)
+        private void MoveToPositionServerRpc(MoveData move)
         {
             MoveToPositionClientRpc(move);
         }
 
         [ClientRpc]
-        private void MoveToPositionClientRpc(EntityMove move)
+        private void MoveToPositionClientRpc(MoveData move)
         {
-            StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(move));
+            StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(_entity, move));
+            Level.Board.MoveEntityData(_entity, move);
             StartCoroutine(WaitCoroutine());
             IEnumerator WaitCoroutine()
             {
                 yield return new WaitForSeconds(move.Duration);
                 _lockMovement = false;
-                Level.Board.MoveEntityData(move);
             }
         }
     }

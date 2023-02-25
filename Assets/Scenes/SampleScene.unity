@@ -3025,10 +3025,6 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 2514584780
       objectReference: {fileID: 0}
-    - target: {fileID: 494995776218324664, guid: 73d847804a00fba4aac307e029aaf0f3, type: 3}
-      propertyPath: _flags
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 494995776218324666, guid: 73d847804a00fba4aac307e029aaf0f3, type: 3}
       propertyPath: m_Name
       value: Prefab_Pushable_Box

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace GridGame
 {
-    public class Pushable : NetworkBehaviour, IInteractable
+    public class Pushable : NetworkBehaviour, IPushable
     {
         private BoardEntity _entity;
         private bool _isInteracting;
@@ -18,7 +18,7 @@ namespace GridGame
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void TryInteractServerRpc(Vector3Int inputDirection)
+        public void TryInteractServerRpc(Vector3Int pushDirection)
         {
             if (_isInteracting)
             {
@@ -26,11 +26,11 @@ namespace GridGame
             }
 
             Vector3Int startPosition = _entity.GridPosition;
-            Vector3Int targetPosition = startPosition + inputDirection;
+            Vector3Int targetPosition = startPosition + pushDirection;
             if (Level.Board.TryGetEntity(targetPosition, out BoardEntity entity, TypeMask.Get(Flag.Interactable)))
             {   
-                IInteractable interactable = entity.GetComponent<IInteractable>();
-                interactable.TryInteractServerRpc(inputDirection);
+                IPushable interactable = entity.GetComponent<IPushable>();
+                interactable.TryInteractServerRpc(pushDirection);
             }
 
             if (Level.Board.IsEntityPresentAt(targetPosition, TypeMask.Get(Flag.Solid)))
@@ -39,19 +39,19 @@ namespace GridGame
             }
 
             float duration = PlayerController.MoveDuration;
-            EntityMove move = new EntityMove(startPosition, targetPosition, duration, _entity.LocalId);
+            MoveData move = new MoveData(startPosition, targetPosition, duration);
             MoveClientRpc(move);
         }
 
         [ClientRpc]
-        private void MoveClientRpc(EntityMove move)
+        private void MoveClientRpc(MoveData move)
         {
-            Level.Board.MoveEntityData(move);
             StartCoroutine(MoveCoroutine());
+            Level.Board.MoveEntityData(_entity, move);
             IEnumerator MoveCoroutine()
             {
                 _isInteracting = true;
-                StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(move));
+                StartCoroutine(Level.Board.MoveToPositionVisualCoroutine(_entity, move));
                 yield return new WaitForSeconds(move.Duration);
                 _isInteracting = false;
             }

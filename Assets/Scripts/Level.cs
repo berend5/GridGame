@@ -133,7 +133,7 @@ namespace GridGame
 
             foreach (Vector3Int pos in Board.AllEntityPositions)
             {
-                if (Board.IsEntityPresentAt(pos, TypeMask.Get(Flag.Player)))
+                if (Board.IsEntityPresentAt(pos, TypeMask.Get(Flag.Solid)))
                 {
                     Handles.DrawWireCube(pos, Vector3.one);
                 }
